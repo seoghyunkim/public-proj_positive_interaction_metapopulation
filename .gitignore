@@ -8,3 +8,5 @@ data_format_wi.R
 data_format_mn.R
 data_format_il.R
 data_format_ia.R
+data_format_gis_spaMM_format.R
+data_format_gis_1000km.R
