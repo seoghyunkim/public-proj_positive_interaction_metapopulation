@@ -28,8 +28,8 @@ library(ggpubr)
 #' Fish data
 HHC_fish_dat <- read_csv("./data_outcome/HHC_fish_spaMMdat_2021-03-22.csv")
 HHC_fish_dat$X1 <- NULL
-HHC_fish_dat$Area <- HHC_fish_dat$Area/1000000
-HHC_fish_dat$Per_Agriculture <- HHC_fish_dat$Per_Agriculture*100
+HHC_fish_dat$Area <- HHC_fish_dat$Area/1000000 # convert value to km^2
+HHC_fish_dat$Per_Agriculture <- HHC_fish_dat$Per_Agriculture*100 # convert value to percentage (%)
 
 
 #' remove correlation
@@ -86,23 +86,19 @@ HHC_dat <- HHC_fish_dat %>%
 
     
   
-##### SPAMM #####  
+##### GLMM using spaMM #####  
 
-#'# spaMM with HUC4
-#'- Matern correlation methods
-#'- Group random effect was specified using 'HUC4'
-#'- 'Matern(1|longitude+latitude %in% group)' can be used to specify a Matern random effect with independent realizations (but identical correlation parameters) for each level of the grouping variable
+#'# spaMM
+#'- Matern correlation function was included to account for spatial autocorrelation
 #'
 
   
-##### CMS model #####
+##### Common shiner model #####
 #'## Common Shiner Model
 
 #'### Common shiner model3
-#'- Both lon and lat were included
-#'- HUC4 was included as a group random effect in Mater correlation
-#'- HHC, CRC, and elevation were significant
 #'
+
 #'- Full model
   CMS_full <- fitme(cbind(CMS_num, SiteNUM-CMS_num)~ scale(HHC_prop) + scale(CRC_prop) + 
                    scale(Area) +  scale(Per_Agriculture) + scale(Elevation) + scale(resid_Temp) + Matern(1|Lat + Lon), 
@@ -207,21 +203,17 @@ HHC_dat <- HHC_fish_dat %>%
 
 
 # Regression plot
-
-library(effects)
-
-  CMS_HHC_efct <- plot_effects(CMS_full,focal_var="HHC_prop", rgb.args = col2rgb("black"), xlab = "HHC", ylab = "Occupancy")
-  CMS_CRC_efct <- plot_effects(CMS_full,focal_var="CRC_prop", rgb.args = col2rgb("black"), xlab = "HHC", ylab = "Occupancy")
-  CMS_elv_efct <- plot_effects(CMS_full,focal_var="Elevation", rgb.args = col2rgb("black"), xlab = "HHC", ylab = "Occupancy")
   
+  # Regression plots
+  CMS_HHC_efct <- plot_effects(CMS_full,focal_var="HHC_prop", rgb.args = col2rgb("black"))
+  CMS_CRC_efct <- plot_effects(CMS_full,focal_var="CRC_prop", rgb.args = col2rgb("black"))
+  CMS_elv_efct <- plot_effects(CMS_full,focal_var="Elevation", rgb.args = col2rgb("black"))
   
-
 CMS_HHC_fig <- ggplot() +
- # geom_point(data = CMS_HHC_efct, aes(x = focal_var, y = pointp),shape=16, size=1.5) +
   geom_ribbon(data = CMS_HHC_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_HHC_efct, aes(x = focal_var, y = pointp), size = 1) +
-  geom_point(data = CMS_dat, aes(x = HHC_prop, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-  scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
+  geom_point(data = CMS_dat, aes(x = HHC_prop, y = CMS_prop), shape=21, colour="black") +
+  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
   scale_x_continuous("Hornyhead chub",  breaks = seq(0, 1, 0.2)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
@@ -236,11 +228,10 @@ CMS_HHC_fig <- ggplot() +
   theme(panel.background = element_rect(fill = "white")) 
 
 CMS_CRC_fig <- ggplot() +
- # geom_point(data = CMS_CRC_efct, aes(x = focal_var, y = pointp),shape=16, size=1.5) +
   geom_ribbon(data = CMS_CRC_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_CRC_efct, aes(x = focal_var, y = pointp), size = 1) +
-  geom_point(data = CMS_dat, aes(x = CRC_prop, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-  scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
+  geom_point(data = CMS_dat, aes(x = CRC_prop, y = CMS_prop), shape=21, colour="black") +
+  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
   scale_x_continuous("Creek chub",  breaks = seq(0, 1, 0.2)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
@@ -248,7 +239,7 @@ CMS_CRC_fig <- ggplot() +
         panel.border=element_rect(colour='black'),
         panel.grid.major=element_line(colour=NA),
         panel.grid.minor=element_line(colour=NA),
-        axis.title.y = element_text(size = rel(1.5)),
+        axis.title.y = element_blank(),
         axis.title.x = element_text(size = rel(1.5)),
         axis.text.x = element_text(size = rel(1.5)),
         axis.text.y = element_text(size = rel(1.5)))  # remove grid
@@ -256,28 +247,27 @@ CMS_CRC_fig <- ggplot() +
 
 
 CMS_elv_fig <- ggplot() +
- # geom_point(data = CMS_elv_efct, aes(x = focal_var, y = pointp),shape=16, size=1.5) +
   geom_ribbon(data = CMS_elv_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_elv_efct, aes(x = focal_var, y = pointp), size = 1) +
-  geom_point(data = CMS_dat, aes(x = Elevation, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-  scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-  scale_x_continuous("Elevation",  breaks = seq(120, 520, 100)) +     
+  geom_point(data = CMS_dat, aes(x = Elevation, y = CMS_prop), shape=21, colour="black") +
+  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+  scale_x_continuous("Elevation (m)",  breaks = seq(120, 520, 100)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
         legend.position = "none",                     # remove legend panel
         panel.border=element_rect(colour='black'),
         panel.grid.major=element_line(colour=NA),
         panel.grid.minor=element_line(colour=NA),
-        axis.title.y = element_text(size = rel(1.5)),
+        axis.title.y = element_blank(),
         axis.title.x = element_text(size = rel(1.5)),
         axis.text.x = element_text(size = rel(1.5)),
         axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
 
 CMS_agri_fig <- ggplot() +
-    geom_point(data = CMS_dat, aes(x = Per_Agriculture, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Agriculture",  breaks = seq(0, 100, 20)) +     
+    geom_point(data = CMS_dat, aes(x = Per_Agriculture, y = CMS_prop), shape=21, colour="black") +
+    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Agriculture (%)",  breaks = seq(0, 100, 20)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
@@ -291,16 +281,16 @@ CMS_agri_fig <- ggplot() +
   theme(panel.background = element_rect(fill = "white")) 
 
 CMS_temp_fig <- ggplot() +
-    geom_point(data = CMS_dat, aes(x = Temperature, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Temperature",  breaks = seq(4, 15, 2)) +     
+    geom_point(data = CMS_dat, aes(x = Temperature, y = CMS_prop), shape=21, colour="black") +
+    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Temperature (°C)", breaks = seq(4, 15, 2)) +    
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
           panel.border=element_rect(colour='black'),
           panel.grid.major=element_line(colour=NA),
           panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
+          axis.title.y = element_blank(),
           axis.title.x = element_text(size = rel(1.5)),
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
@@ -308,23 +298,20 @@ CMS_temp_fig <- ggplot() +
   
   
 CMS_area_fig <- ggplot() +
-    geom_point(data = CMS_dat, aes(x = Area, y = CMS_prop, size= SiteNUM), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Watershed area",  breaks = seq(93, 1000, 200)) +     
+    geom_point(data = CMS_dat, aes(x = Area, y = CMS_prop), shape=21, colour="black") +
+    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Watershed area (km2)",  breaks = seq(200, 1000, 200)) +  
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
           panel.border=element_rect(colour='black'),
           panel.grid.major=element_line(colour=NA),
           panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
+          axis.title.y = element_blank(),
           axis.title.x = element_text(size = rel(1.5)),
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
-  
-
-library(ggpubr)
 
 
 # Combine figures
@@ -340,13 +327,11 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
 #'
 
 #'### Southern redbelly dace model3
-#'- Both lon and lat were included
-#'- HUC4 was included as a group random effect in Mater correlation
-#'- CSR and Agriculture, and Area were significant
 #'  
+
 #'- Full model
   SRD_full <- fitme(cbind(SRD_num, SiteNUM-SRD_num)~ scale(HHC_prop) + scale(CRC_prop) + scale(CSR_prop) + 
-                   scale(Area) +  scale(Per_Agriculture) + scale(Elevation) + scale(resid_Temp) +  Matern(1|Lat + Lon),
+                   scale(Area) +  scale(Per_Agriculture) + scale(Elevation) + scale(resid_Temp) + Matern(1|Lat + Lon),
                    family= binomial, data= SRD_dat, method="ML")
   summary(SRD_full)
   
@@ -382,6 +367,7 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
             ncol = 1, nrow = 2)
 
 #'- 95% CI  
+
   SRD_full_coef <- as.data.frame(summary(SRD_full)$beta_table)
   row0 <- row.names(SRD_full_coef) %in% c('(Intercept)')
   row1 <- row.names(SRD_full_coef) %in% c('scale(HHC_prop)')
@@ -455,50 +441,14 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   ggarrange(cms_CI_plot, srd_CI_plot,
             ncol = 1, nrow = 2)
   
-#'- Regression plot: effect plot functions did not work with group effect.
-  SRD_CSR_efct <- plot_effects(SRD_full,focal_var="CSR_prop", rgb.args = col2rgb("black"), xlab = "CMS", ylab = "Occupancy")
-  SRD_agri_efct <- plot_effects(SRD_full,focal_var="Per_Agriculture", rgb.args = col2rgb("black"), xlab = "Agriculture", ylab = "Occupancy")
+#'- Regression plot
+  # Regressions
+  SRD_CSR_efct <- plot_effects(SRD_full,focal_var="CSR_prop", rgb.args = col2rgb("black"))
+  SRD_agri_efct <- plot_effects(SRD_full,focal_var="Per_Agriculture", rgb.args = col2rgb("black"))
 
-  SRD_CSR_fig <- ggplot() +
-    #geom_point(data = SRD_CSR_efct, aes(x = focal_var, y = pointp),shape=16, size=1.5) +
-    geom_ribbon(data = SRD_CSR_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
-    geom_line(data = SRD_CSR_efct, aes(x = focal_var, y = pointp), size = 1) +
-    geom_point(data = SRD_dat, aes(x = CSR_prop, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Central stoneroller",  breaks = seq(0, 1, 0.2)) +     
-    theme_bw() +
-    theme(text=element_text(face="bold", size=8),  
-          legend.position = "none",                     # remove legend panel
-          panel.border=element_rect(colour='black'),
-          panel.grid.major=element_line(colour=NA),
-          panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
-          axis.title.x = element_text(size = rel(1.5)),
-          axis.text.x = element_text(size = rel(1.5)),
-          axis.text.y = element_text(size = rel(1.5)))  # remove grid
-  theme(panel.background = element_rect(fill = "white")) 
-  
-  SRD_CSR_fig
-  
-  SRD_CRC_fig <- ggplot() +
-    geom_point(data = SRD_dat, aes(x = CRC_prop, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Creek chub",  breaks = seq(0, 1, 0.2)) +     
-    theme_bw() +
-    theme(text=element_text(face="bold", size=8),  
-          legend.position = "none",                     # remove legend panel
-          panel.border=element_rect(colour='black'),
-          panel.grid.major=element_line(colour=NA),
-          panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
-          axis.title.x = element_text(size = rel(1.5)),
-          axis.text.x = element_text(size = rel(1.5)),
-          axis.text.y = element_text(size = rel(1.5)))  # remove grid
-  theme(panel.background = element_rect(fill = "white")) 
-  
   SRD_HHC_fig <- ggplot() +
     geom_point(data = SRD_dat, aes(x = HHC_prop, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
     scale_x_continuous("Hornyhead chub",  breaks = seq(0, 1, 0.2)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
@@ -512,47 +462,78 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
   
-  SRD_elv_fig <- ggplot() +
-    geom_point(data = SRD_dat, aes(x = Elevation, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Elevation",  breaks = seq(120, 520, 100)) +     
+  SRD_CRC_fig <- ggplot() +
+    geom_point(data = SRD_dat, aes(x = CRC_prop, y = SRD_prop), shape=21, colour="black") +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Creek chub",  breaks = seq(0, 1, 0.2)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
           panel.border=element_rect(colour='black'),
           panel.grid.major=element_line(colour=NA),
           panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
+          axis.title.y = element_blank(),
+          axis.title.x = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.text.y = element_text(size = rel(1.5)))  # remove grid
+  theme(panel.background = element_rect(fill = "white")) 
+
+  SRD_CSR_fig <- ggplot() +
+    geom_ribbon(data = SRD_CSR_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
+    geom_line(data = SRD_CSR_efct, aes(x = focal_var, y = pointp), size = 1) +
+    geom_point(data = SRD_dat, aes(x = CSR_prop, y = SRD_prop), shape=21, colour="black") +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Central stoneroller",  breaks = seq(0, 1, 0.2)) +     
+    theme_bw() +
+    theme(text=element_text(face="bold", size=8),  
+          legend.position = "none",                     # remove legend panel
+          panel.border=element_rect(colour='black'),
+          panel.grid.major=element_line(colour=NA),
+          panel.grid.minor=element_line(colour=NA),
+          axis.title.y = element_blank(),
+          axis.title.x = element_text(size = rel(1.5)),
+          axis.text.x = element_text(size = rel(1.5)),
+          axis.text.y = element_text(size = rel(1.5)))  # remove grid
+  theme(panel.background = element_rect(fill = "white")) 
+  
+  SRD_elv_fig <- ggplot() +
+    geom_point(data = SRD_dat, aes(x = Elevation, y = SRD_prop), shape=21, colour="black") +
+    scale_y_continuous("Occupancy",limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Elevation (m)",  breaks = seq(120, 520, 100)) +     
+    theme_bw() +
+    theme(text=element_text(face="bold", size=8),  
+          legend.position = "none",                     # remove legend panel
+          panel.border=element_rect(colour='black'),
+          panel.grid.major=element_line(colour=NA),
+          panel.grid.minor=element_line(colour=NA),
+          axis.title.y = element_blank(),
           axis.title.x = element_text(size = rel(1.5)),
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
   
   SRD_agri_fig <- ggplot() +
-    #geom_point(data = SRD_agri_efct, aes(x = focal_var, y = pointp),shape=16, size=1.5) +
     geom_ribbon(data = SRD_agri_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
     geom_line(data = SRD_agri_efct, aes(x = focal_var, y = pointp), size = 1) +
     geom_point(data = SRD_dat, aes(x = Per_Agriculture, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Agriculture",  breaks = seq(0, 100, 20)) +     
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Agriculture (%)",  breaks = seq(0, 100, 20)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
           panel.border=element_rect(colour='black'),
           panel.grid.major=element_line(colour=NA),
           panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(1.5)),
+          axis.title.y = element_blank(),
           axis.title.x = element_text(size = rel(1.5)),
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
-  
-  SRD_agri_fig
-  
+
   SRD_temp_fig <- ggplot() +
     geom_point(data = SRD_dat, aes(x = Temperature, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Temperature",  breaks = seq(4, 15, 2)) +     
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Temperature (°C)",  breaks = seq(4, 15, 2)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
@@ -564,12 +545,11 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
-  
   
   SRD_area_fig <- ggplot() +
     geom_point(data = SRD_dat, aes(x = Area, y = SRD_prop), shape=21, colour="black") +
-    scale_y_continuous("Occupancy",  breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Watershed area",  breaks = seq(93, 1000, 200)) +     
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
+    scale_x_continuous("Watershed area (km2)",  breaks = seq(93, 1000, 200)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
@@ -581,18 +561,9 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
           axis.text.x = element_text(size = rel(1.5)),
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
-  
-  
-  SRD_HHC_fig
-  SRD_CRC_fig
-  SRD_area_fig
-  SRD_elv_fig
-  SRD_agri_fig
-  SRD_temp_fig
-  
 
   
-  # Combine figures
+# Combine figures
   ggarrange(SRD_HHC_fig, SRD_CRC_fig, SRD_CSR_fig, SRD_area_fig, SRD_agri_fig,  SRD_elv_fig, SRD_temp_fig,
             ncol = 3, nrow = 3)
   
