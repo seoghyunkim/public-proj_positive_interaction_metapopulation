@@ -16,7 +16,7 @@ Author: Seoghyun Kim, Christine L. Dolph, and Akira Terui
 Comming Soon
 **Note that the raw data are not available in this repository due to licensing issues.**
 
-# License
+# Data sources
 
 -   GIS layers adapted from the following materials are licensed under:
     -   US National Land Cover Database: (https://doi.org/10.5066/P96HHBIE)
