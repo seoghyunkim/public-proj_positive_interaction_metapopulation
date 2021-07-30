@@ -44,12 +44,7 @@ fish_dat <- fish_dat %>%
 #'- Matern correlation function was included to account for spatial autocorrelation
 
 
-    
-##### Common shiner model #####
 #'## Common Shiner Model
-
-#'### Common shiner model3
-#'
 
 #'- Full model
   CMS_full <- fitme(cbind(CMS_num, SiteNUM-CMS_num)~ scale(HHC_prop) + scale(CRC_prop) + 
@@ -58,9 +53,7 @@ fish_dat <- fish_dat %>%
   
   summary(CMS_full)
   
-  
 #'- Model validation - Pearson Correlation
-  
   cor.test(predict(CMS_full), CMS_dat$CMS_prop)
   
   cms_val <- ggplot() + 
@@ -79,9 +72,6 @@ fish_dat <- fish_dat %>%
           axis.text.x = element_text(size = rel(0.9)),
           axis.text.y = element_text(size = rel(0.9)))  # remove grid
     theme(panel.background = element_rect(fill = "white"), legend.position=c(0.10,0.80))
-  
-    cms_val
-  
 
 #'- Extract 95% CI  
   CMS_full_coef <- as.data.frame(summary(CMS_full)$beta_table)
@@ -117,13 +107,11 @@ fish_dat <- fish_dat %>%
   cms_low <- rbind(lower0, lower1, lower2, lower3 ,lower4, lower5, lower6)
   cms_upp <- rbind(upper0, upper1, upper2, upper3, upper4, upper5, upper6)
   
-  
    cms_ci <- as.data.frame(cbind( cms_low,  cms_upp))
    names( cms_ci) <- c("lower", "upper")
    cms.CI_name <- c("Intercept","Hornyhead chub", "Creek chub", "Catchment area", "Agriculture", "Elevation", "Temperature")
    cms_ci$variable <-  cms.CI_name
    cms_ci
-   
    
    cms_ci2 =  cms_ci %>%
     rowwise() %>%
@@ -132,7 +120,7 @@ fish_dat <- fish_dat %>%
     select(variable= name, lower, upper, mean_effect)
   
   
-  #'- plot
+#'- 95% CI plot
   cms_CI_plot <- ggplot( cms_ci2, aes(x= variable, y= mean_effect)) + 
     geom_errorbar(aes(ymin=lower, ymax= upper), width=0.2, size=1) + 
     geom_point(mapping= aes(x= variable, y= mean_effect), size=4, shape=21, fill="black") +
@@ -154,12 +142,11 @@ fish_dat <- fish_dat %>%
   
 
 
-# Regression plot
-  
-  # Regression plots
+#'-  Regression plot
   CMS_HHC_efct <- plot_effects(CMS_full,focal_var="HHC_prop", rgb.args = col2rgb("black"))
   CMS_CRC_efct <- plot_effects(CMS_full,focal_var="CRC_prop", rgb.args = col2rgb("black"))
   CMS_elv_efct <- plot_effects(CMS_full,focal_var="Elevation", rgb.args = col2rgb("black"))
+  
   
 CMS_HHC_fig <- ggplot() +
   geom_ribbon(data = CMS_HHC_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
@@ -196,7 +183,6 @@ CMS_CRC_fig <- ggplot() +
         axis.text.x = element_text(size = rel(1.5)),
         axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
-
 
 CMS_elv_fig <- ggplot() +
   geom_ribbon(data = CMS_elv_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
@@ -248,7 +234,6 @@ CMS_temp_fig <- ggplot() +
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
   
-  
 CMS_area_fig <- ggplot() +
     geom_point(data = CMS_dat, aes(x = Area, y = CMS_prop), shape=21, colour="black") +
     scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
@@ -265,12 +250,9 @@ CMS_area_fig <- ggplot() +
           axis.text.y = element_text(size = rel(1.5)))  # remove grid
   theme(panel.background = element_rect(fill = "white")) 
 
-
-# Combine figures
+#'- Combine figures
 ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CMS_temp_fig,
           ncol = 3, nrow = 2) # resolution 900 X 600
-
-
 
 
 ##### SRD model #####
@@ -281,8 +263,6 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
                    scale(Area) +  scale(Per_Agriculture) + scale(Elevation) + scale(resid_Temp) + Matern(1|Lat + Lon),
                    family= binomial, data= SRD_dat, method="ML")
   summary(SRD_full)
-  
-  
   
 #'- Model validation - Pearson Correlation
   cor.test(predict(SRD_full), SRD_dat$SRD_prop)
@@ -306,7 +286,6 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   
   srd_val
 
-  
 #'- Model validation plot: CMS and SRD
   ggarrange(cms_val, srd_val,
             ncol = 1, nrow = 2)
@@ -362,7 +341,7 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
     select(variable= name, lower, upper, mean_effect)
   
   
-#'- plot
+#'- 95% CI plot
   srd_CI_plot <- ggplot(srd_ci2, aes(x= variable, y= mean_effect)) + 
     geom_errorbar(aes(ymin=lower, ymax= upper), width=0.2, size=1) + 
     geom_point(mapping= aes(x= variable, y= mean_effect), size=4, shape=21, fill="black") +
@@ -382,11 +361,8 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   
   srd_CI_plot
 
-  ggarrange(cms_CI_plot, srd_CI_plot,
-            ncol = 1, nrow = 2)
   
 #'- Regression plot
-  # Regressions
   SRD_CSR_efct <- plot_effects(SRD_full,focal_var="CSR_prop", rgb.args = col2rgb("black"))
   SRD_agri_efct <- plot_effects(SRD_full,focal_var="Per_Agriculture", rgb.args = col2rgb("black"))
 
@@ -507,7 +483,7 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   theme(panel.background = element_rect(fill = "white")) 
 
   
-# Combine figures
+#'- Combine regression figures
   ggarrange(SRD_HHC_fig, SRD_CRC_fig, SRD_CSR_fig, SRD_area_fig, SRD_agri_fig,  SRD_elv_fig, SRD_temp_fig,
             ncol = 3, nrow = 3) # resolution 900 X 870
  
