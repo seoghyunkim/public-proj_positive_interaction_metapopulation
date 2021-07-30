@@ -493,7 +493,7 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   SRD_area_fig <- ggplot() +
     geom_point(data = SRD_dat, aes(x = Area, y = SRD_prop), shape=21, colour="black") +
     scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
-    scale_x_continuous("Watershed area (km2)",  breaks = seq(93, 1000, 200)) +     
+    scale_x_continuous("Watershed area (km2)",  breaks = seq(0, 1000, 200)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
           legend.position = "none",                     # remove legend panel
@@ -511,3 +511,4 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   ggarrange(SRD_HHC_fig, SRD_CRC_fig, SRD_CSR_fig, SRD_area_fig, SRD_agri_fig,  SRD_elv_fig, SRD_temp_fig,
             ncol = 3, nrow = 3) # resolution 900 X 870
  
+  
