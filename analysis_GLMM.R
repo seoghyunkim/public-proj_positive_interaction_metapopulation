@@ -1,12 +1,11 @@
 #' ---
-#' title: spaMM version 02
-#' author: A. Terui & S. Kim
+#' title: GLMM analysis
+#' author: S. Kim, C. Dolph, and A. Terui
 #' output:
 #'   html_document:
 #'     theme: paper
 #'     toc: true
 #'     toc_float: true
-#'     number_sections: TRUE
 #' ---
 
 #' # Session information
@@ -18,9 +17,6 @@ rm(list=ls(all.names=T)) # clear all data
 library(tidyverse)
 library(spaMM)
 library(performance)
-library(DHARMa)
-library(gridExtra)
-library(caret)
 library(ggpubr)
 
 #'# Read data 
@@ -43,55 +39,13 @@ HHC_dat <- HHC_fish_dat %>%
     CMS_dat  <- HHC_dat
 
   
-  
-#### Moran's I ####
-#'# Moran's I spatial-autocorrelation test 
-#'- Both species were spatially correlated and clumped.
-#'
-  
-#'## Common shiner
-#'- Binomial GLM (null model) to obtain a residual
-  CMS_glm1 <- glm(cbind(CMS_num, SiteNUM-CMS_num)~ 1, family= binomial, data= CMS_dat)
-  
-#'- Residual
-  CMS_dat$resid <- resid(CMS_glm1)
-  
-#'- Check the distribution
-  ggplot(data= CMS_dat, aes(y = Lat, x = Lon, size = resid)) +
-    geom_point() +
-    scale_size_continuous(range = c(-10,10))
-  
-#'- Moran'I test
-  CMS_glm_sim <- simulateResiduals(CMS_glm1)
-  testSpatialAutocorrelation(CMS_glm_sim, y = CMS_dat$Lat, x = CMS_dat$Lon, plot = T)
-  
-  
-#'## Southern Redbelly Dace
-#'- Binomial GLM to obtain a residual
-  SRD_glm1 <- glm(cbind(SRD_num, SiteNUM-SRD_num)~ 1, family= binomial, data= SRD_dat)
-  
-#'- Residual
-  SRD_dat$resid <- resid(SRD_glm1)
-  
-#'- Check the distribution
-  ggplot(data= SRD_dat, aes(y = Lat, x = Lon, size = resid)) +
-    geom_point() +
-    scale_size_continuous(range = c(-10,10))
-  
-#'- Moran'I test
-  SRD_glm_sim <- simulateResiduals(SRD_glm1)
-  testSpatialAutocorrelation(SRD_glm_sim, y = SRD_dat$Lat, x = SRD_dat$Lon, plot = T)
-  
+
+##### GLMM using package spaMM #####  
+
+#'- Matern correlation function was included to account for spatial autocorrelation
+
 
     
-  
-##### GLMM using spaMM #####  
-
-#'# spaMM
-#'- Matern correlation function was included to account for spatial autocorrelation
-#'
-
-  
 ##### Common shiner model #####
 #'## Common Shiner Model
 
