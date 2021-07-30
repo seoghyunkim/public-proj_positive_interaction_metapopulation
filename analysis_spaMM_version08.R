@@ -26,11 +26,8 @@ library(ggpubr)
 #'# Read data 
 
 #' Fish data
-HHC_fish_dat <- read_csv("./data_outcome/HHC_fish_spaMMdat_2021-03-22.csv")
+HHC_fish_dat <- read_csv("./data_outcome/pos_meta_dat.csv")
 HHC_fish_dat$X1 <- NULL
-HHC_fish_dat$Area <- HHC_fish_dat$Area/1000000 # convert value to km^2
-HHC_fish_dat$Per_Agriculture <- HHC_fish_dat$Per_Agriculture*100 # convert value to percentage (%)
-
 
 #' remove correlation
 #' - This is for GLMM, particularly in SRD model. There are strong correlation between elevation and temperature; CMS and HHC and CRC; CRS and agriculture.
@@ -41,7 +38,9 @@ HHC_dat <- HHC_fish_dat %>%
 #'- This is to remove HUC4 sub-basin where SRD are not distributed.
   SRD_dat  <- HHC_dat  %>%
     filter(HUC4 %in% c("HUC4_12","HUC4_33","HUC4_35","HUC4_36","HUC4_39","HUC4_42","HUC4_43","HUC4_44","HUC4_45"))
-  CMS_dat  <- HHC_dat
+
+#'- Common shiner data (110 watersheds)
+    CMS_dat  <- HHC_dat
 
   
   
@@ -213,7 +212,7 @@ CMS_HHC_fig <- ggplot() +
   geom_ribbon(data = CMS_HHC_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_HHC_efct, aes(x = focal_var, y = pointp), size = 1) +
   geom_point(data = CMS_dat, aes(x = HHC_prop, y = CMS_prop), shape=21, colour="black") +
-  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+  scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
   scale_x_continuous("Hornyhead chub",  breaks = seq(0, 1, 0.2)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
@@ -231,7 +230,7 @@ CMS_CRC_fig <- ggplot() +
   geom_ribbon(data = CMS_CRC_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_CRC_efct, aes(x = focal_var, y = pointp), size = 1) +
   geom_point(data = CMS_dat, aes(x = CRC_prop, y = CMS_prop), shape=21, colour="black") +
-  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+  scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
   scale_x_continuous("Creek chub",  breaks = seq(0, 1, 0.2)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
@@ -250,7 +249,7 @@ CMS_elv_fig <- ggplot() +
   geom_ribbon(data = CMS_elv_efct, aes(x = focal_var, ymin = low, ymax = up), alpha = 0.2) +
   geom_line(data = CMS_elv_efct, aes(x = focal_var, y = pointp), size = 1) +
   geom_point(data = CMS_dat, aes(x = Elevation, y = CMS_prop), shape=21, colour="black") +
-  scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+  scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
   scale_x_continuous("Elevation (m)",  breaks = seq(120, 520, 100)) +     
   theme_bw() +
   theme(text=element_text(face="bold", size=8),  
@@ -266,7 +265,7 @@ CMS_elv_fig <- ggplot() +
 
 CMS_agri_fig <- ggplot() +
     geom_point(data = CMS_dat, aes(x = Per_Agriculture, y = CMS_prop), shape=21, colour="black") +
-    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
     scale_x_continuous("Agriculture (%)",  breaks = seq(0, 100, 20)) +     
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
@@ -282,7 +281,7 @@ CMS_agri_fig <- ggplot() +
 
 CMS_temp_fig <- ggplot() +
     geom_point(data = CMS_dat, aes(x = Temperature, y = CMS_prop), shape=21, colour="black") +
-    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
     scale_x_continuous("Temperature (°C)", breaks = seq(4, 15, 2)) +    
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
@@ -299,7 +298,7 @@ CMS_temp_fig <- ggplot() +
   
 CMS_area_fig <- ggplot() +
     geom_point(data = CMS_dat, aes(x = Area, y = CMS_prop), shape=21, colour="black") +
-    scale_y_continuous("Metapopulation occupancy",  breaks = seq(0, 1, 0.2)) +
+    scale_y_continuous("Occupancy", limits=c(0,1), breaks = seq(0, 1, 0.2)) +
     scale_x_continuous("Watershed area (km2)",  breaks = seq(200, 1000, 200)) +  
     theme_bw() +
     theme(text=element_text(face="bold", size=8),  
@@ -565,6 +564,6 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   
 # Combine figures
   ggarrange(SRD_HHC_fig, SRD_CRC_fig, SRD_CSR_fig, SRD_area_fig, SRD_agri_fig,  SRD_elv_fig, SRD_temp_fig,
-            ncol = 3, nrow = 3)
-  
+            ncol = 3, nrow = 3) # resolution 900 X 870
+ 
 
