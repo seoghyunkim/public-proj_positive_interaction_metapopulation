@@ -22,26 +22,25 @@ library(ggpubr)
 #'# Read data 
 
 #' Fish data
-HHC_fish_dat <- read_csv("./data_outcome/pos_meta_dat.csv")
-HHC_fish_dat$X1 <- NULL
+fish_dat <- read_csv("./data_outcome/pos_meta_dat.csv")
+fish_dat$X1 <- NULL
 
 #' remove correlation
 #' - This is for GLMM, particularly in SRD model. There are strong correlation between elevation and temperature; CMS and HHC and CRC; CRS and agriculture.
-HHC_dat <- HHC_fish_dat %>% 
+fish_dat <- fish_dat %>% 
            mutate(resid_Temp = resid(lm(Temperature ~ Elevation, data = .)))
 
 #' Filter SRD distribution (retain 71 watersheds)
 #'- This is to remove HUC4 sub-basin where SRD are not distributed.
-  SRD_dat  <- HHC_dat  %>%
+  SRD_dat  <- fish_dat  %>%
     filter(HUC4 %in% c("HUC4_12","HUC4_33","HUC4_35","HUC4_36","HUC4_39","HUC4_42","HUC4_43","HUC4_44","HUC4_45"))
 
 #'- Common shiner data (110 watersheds)
-    CMS_dat  <- HHC_dat
+    CMS_dat  <- fish_dat
 
   
 
 ##### GLMM using package spaMM #####  
-
 #'- Matern correlation function was included to account for spatial autocorrelation
 
 
@@ -84,7 +83,7 @@ HHC_dat <- HHC_fish_dat %>%
     cms_val
   
 
-#'- 95% CI  
+#'- Extract 95% CI  
   CMS_full_coef <- as.data.frame(summary(CMS_full)$beta_table)
   row0 <- row.names(CMS_full_coef) %in% c('(Intercept)')
   row1 <- row.names(CMS_full_coef) %in% c('scale(HHC_prop)')
@@ -269,18 +268,13 @@ CMS_area_fig <- ggplot() +
 
 # Combine figures
 ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CMS_temp_fig,
-          ncol = 3, nrow = 2)
-
+          ncol = 3, nrow = 2) # resolution 900 X 600
 
 
 
 
 ##### SRD model #####
 #'## Southern Redbelly Dace Model
-#'
-
-#'### Southern redbelly dace model3
-#'  
 
 #'- Full model
   SRD_full <- fitme(cbind(SRD_num, SiteNUM-SRD_num)~ scale(HHC_prop) + scale(CRC_prop) + scale(CSR_prop) + 
@@ -288,11 +282,9 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
                    family= binomial, data= SRD_dat, method="ML")
   summary(SRD_full)
   
-
-
+  
   
 #'- Model validation - Pearson Correlation
-  
   cor.test(predict(SRD_full), SRD_dat$SRD_prop)
   
   srd_val <-ggplot() + 
@@ -319,8 +311,7 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   ggarrange(cms_val, srd_val,
             ncol = 1, nrow = 2)
 
-#'- 95% CI  
-
+#'- Extract 95% CI  
   SRD_full_coef <- as.data.frame(summary(SRD_full)$beta_table)
   row0 <- row.names(SRD_full_coef) %in% c('(Intercept)')
   row1 <- row.names(SRD_full_coef) %in% c('scale(HHC_prop)')
@@ -520,4 +511,3 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
   ggarrange(SRD_HHC_fig, SRD_CRC_fig, SRD_CSR_fig, SRD_area_fig, SRD_agri_fig,  SRD_elv_fig, SRD_temp_fig,
             ncol = 3, nrow = 3) # resolution 900 X 870
  
-
