@@ -13,8 +13,7 @@ Author: Seoghyun Kim, Christine L. Dolph, and Akira Terui
 
 
 # File descriptions
-See `metadata.html` (to view `metadata.html`, clone the repository and
-open `metadata.html` from your local computer). 
+Comming Soon
 **Note that the raw data are not available in this repository due to licensing issues.**
 
 # License
