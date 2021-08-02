@@ -16,8 +16,8 @@ sessionInfo()
 rm(list=ls(all.names=T)) # clear all data
 library(tidyverse)
 library(spaMM)
-library(performance)
 library(ggpubr)
+
 
 #'# Read data 
 
@@ -26,11 +26,10 @@ fish_dat <- read_csv("./data_outcome/pos_meta_dat.csv")
 fish_dat$X1 <- NULL
 
 #' remove correlation
-#' - This is for GLMM, particularly in SRD model. There are strong correlation between elevation and temperature; CMS and HHC and CRC; CRS and agriculture.
 fish_dat <- fish_dat %>% 
            mutate(resid_Temp = resid(lm(Temperature ~ Elevation, data = .)))
 
-#' Filter SRD distribution (retain 71 watersheds)
+#' Filter southern redbelly dace distribution (retain 71 watersheds)
 #'- This is to remove HUC4 sub-basin where SRD are not distributed.
   SRD_dat  <- fish_dat  %>%
     filter(HUC4 %in% c("HUC4_12","HUC4_33","HUC4_35","HUC4_36","HUC4_39","HUC4_42","HUC4_43","HUC4_44","HUC4_45"))
@@ -117,26 +116,6 @@ fish_dat <- fish_dat %>%
     mutate(name = fct_relevel(variable,"Intercept",  "Hornyhead chub", "Creek chub", "Catchment area", "Agriculture", "Elevation", "Temperature")) %>% #  This is to fix row order for ggplot
     select(variable= name, lower, upper, mean_effect)
   
-  
-#'- 95% CI plot
-  cms_CI_plot <- ggplot( cms_ci2, aes(x= variable, y= mean_effect)) + 
-    geom_errorbar(aes(ymin=lower, ymax= upper), width=0.2, size=1) + 
-    geom_point(mapping= aes(x= variable, y= mean_effect), size=4, shape=21, fill="black") +
-    geom_hline(aes(yintercept = 0), linetype="dashed", color = "black", size= 0.9) +
-    labs(title= "Common Shiner", x ="Explanatory variable", y = "Standardized effect size") +
-    theme_bw() +
-    theme(text=element_text(face="bold", size=17, color="black"),
-          legend.position = "none",  # This is to remove legend
-          panel.border=element_rect(colour='black'),
-          panel.grid.major=element_line(colour=NA),
-          panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(0.9)),
-          axis.title.x = element_blank(),
-          axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1, size = rel(0.9)),
-          axis.text.y = element_text(size = rel(0.9)))  # remove grid
-  theme(panel.background = element_rect(fill = "white"), legend.position=c(0.10,0.80))
-  
-  cms_CI_plot
   
 #'-  Regression plot
   CMS_HHC_efct <- plot_effects(CMS_mod,focal_var="HHC_prop", rgb.args = col2rgb("black"))
@@ -335,27 +314,6 @@ ggarrange(CMS_HHC_fig, CMS_CRC_fig, CMS_area_fig, CMS_agri_fig,  CMS_elv_fig, CM
     mutate(name = fct_relevel(variable,"Intercept",  "Hornyhead chub", "Creek chub", "Central stoneroller", "Catchment area", "Agriculture", "Elevation", "Temperature")) %>% #  This is to fix row order for ggplot
     select(variable= name, lower, upper, mean_effect)
   
-  
-#'- 95% CI plot
-  srd_CI_plot <- ggplot(srd_ci2, aes(x= variable, y= mean_effect)) + 
-    geom_errorbar(aes(ymin=lower, ymax= upper), width=0.2, size=1) + 
-    geom_point(mapping= aes(x= variable, y= mean_effect), size=4, shape=21, fill="black") +
-    geom_hline(aes(yintercept = 0), linetype="dashed", color = "black", size= 0.9) +
-    labs(title= "Southern Redbelly Dace", x ="Explanatory variable", y = "Standardized effect size") +
-    theme_bw() +
-    theme(text=element_text(face="bold", size=17, color="black"),
-          legend.position = "none",  # This is to remove legend
-          panel.border=element_rect(colour='black'),
-          panel.grid.major=element_line(colour=NA),
-          panel.grid.minor=element_line(colour=NA),
-          axis.title.y = element_text(size = rel(0.9)),
-          axis.title.x = element_text(size = rel(0.9)),
-          axis.text.x = element_text(angle = 45,  vjust = 1, hjust = 1, size = rel(0.9)),
-          axis.text.y = element_text(size = rel(0.9)))  # remove grid
-  theme(panel.background = element_rect(fill = "white"), legend.position=c(0.10,0.80))
-  
-  srd_CI_plot
-
   
 #'- Regression plot
   SRD_CSR_efct <- plot_effects(SRD_mod,focal_var="CSR_prop", rgb.args = col2rgb("black"))
