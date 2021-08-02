@@ -1,6 +1,6 @@
 #' ---
-#' title: Correlation analysis
-#' author: S. Kim, C. Dolph, and A. Terui
+#' title: Correlation test
+#' author: S. Kim, C. L. Dolph, and A. Terui
 #' output:
 #'   html_document:
 #'     theme: paper

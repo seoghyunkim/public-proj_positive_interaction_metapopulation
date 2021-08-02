@@ -1,6 +1,6 @@
 #' ---
 #' title: GLMM analysis
-#' author: S. Kim, C. Dolph, and A. Terui
+#' author: S. Kim, C. L. Dolph, and A. Terui
 #' output:
 #'   html_document:
 #'     theme: paper
