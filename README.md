@@ -13,11 +13,11 @@ Author: Seoghyun Kim, Christine L. Dolph, and Akira Terui
 
 
 # File descriptions
-- data_gis folder: 4 GeoPackage files resulted from GIS analysis.
-- figure folder: 3 figures (Fig. 1, 2, and 3) in the manuscript with 2 figures (Appendix S1 and S3) in the appendix.
-- analysis_GLMM.R: main analysis using R package spaMM. 
-- analysis_correlation_test.R: Spearman correlation test based on abiotic and biotic variables.
-- analysis_moran_index.R: Spatial auto-correlation test based on a binomial generalized linear model (null model).
+- data_gis folder: 4 GeoPackage files.
+- figure folder: 3 figures (Fig. 1, 2, and 3) in the manuscript and 2 figures (Appendix S1 and S3) in the appendix.
+- analysis_GLMM.R: main analysis (generalized linear mixed model) using R package spaMM. 
+- analysis_correlation_test.R: Spearman correlation test based on metapopulation occupancy of five focal species and abiotic variables.
+- analysis_moran_index.R: Spatial auto-correlation test (Moran' I) based on a binomial generalized linear model (null model).
 
 **Note that the raw data are not available in this repository due to licensing issues.**
 
