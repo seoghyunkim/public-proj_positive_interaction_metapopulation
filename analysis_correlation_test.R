@@ -31,9 +31,9 @@ fish_dat$X1 <- NULL
 #' # Correlation plot 
 
 #' ## Spearman Correlation Table 
-rcorr(as.matrix(fish_dat[, c(17:22)]), type = c("spearman"))
+rcorr(as.matrix(fish_dat[, c(12:22)]), type = c("spearman"))
 
 #' ## Spearman Correlation figure
-chart.Correlation(fish_dat[, c(17:22)], method="spearman", histogram=TRUE, cex = 10) 
+chart.Correlation(fish_dat[, c(12:22)], method="spearman", histogram=TRUE, cex = 10) 
 
 
