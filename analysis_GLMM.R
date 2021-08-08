@@ -54,7 +54,7 @@ fish_dat$X1 <- NULL
     geom_point(aes(as.vector(predict(CMS_mod)), CMS_dat$CMS_prop)) + 
     scale_x_continuous("Predicted value", limits =  c(0,1), breaks = seq(0,1,0.2)) +
     scale_y_continuous("Observed value", limits =  c(0,1), breaks = seq(0,1,0.2)) +
-    labs(title= "Common Shiner") +
+    labs(title= "Common shiner") +
     theme_bw() +
     theme(text=element_text(face="bold", size=17, color="black"),
           legend.position = "none",  # This is to remove legend
