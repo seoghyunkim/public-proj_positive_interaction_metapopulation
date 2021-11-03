@@ -7,15 +7,15 @@
 
 
 # Article information
-Title: The relative importance of positive biotic interactions and abiotic factors  on the metapopulation-level association in stream fishes
+Title: Metapopulation-level associations in positively interacting stream fishes
 
 Author: Seoghyun Kim, Christine L. Dolph, and Akira Terui
 
 
 # File descriptions
 - data_gis folder: 4 GeoPackage files.
-- figure folder: 3 figures (Fig. 1, 2, and 3) in the manuscript and 2 figures (Appendix S1 and S3) in the appendix.
-- analysis_GLMM.R: main analysis (generalized linear mixed model) using R package spaMM. 
+- figure folder: 3 figures (Fig. 1, 2) in the manuscript and 2 figures (Appendix S2) in the appendix.
+- analysis_GLMM.R: main analysis (generalized linear mixed model) using R package glmmTMB. 
 - analysis_correlation_test.R: Spearman correlation test based on metapopulation occupancy of five focal species and abiotic variables.
 - analysis_moran_index.R: Spatial auto-correlation test (Moran' I) based on a binomial generalized linear model (null model).
 

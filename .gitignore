@@ -12,3 +12,7 @@ data_format_gis_spaMM_format.R
 data_format_gis_1000km.R
 data_format_binary.R
 analysis_GLMM_ver0.90.R
+analysis_GLMM_ver0.91.R
+analysis_GLMM_1st_Sub.R
+analysis_GLMM_ver0.92.R
+analysis_GLMM_ver0.93.R
